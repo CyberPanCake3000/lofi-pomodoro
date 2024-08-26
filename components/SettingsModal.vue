@@ -1,36 +1,43 @@
 <template>
-  <transition name="modal">
+  <transition name="modal" tabindex="-1">
     <div v-if="show" class="modal-overlay" @click="$emit('close')">
-      <div class="modal-content" @click.stop>
-        <h2>Settings</h2>
-        <form @submit.prevent="saveSettings">
-          <div>
-            <label for="pomodoroDuration">Pomodoro Duration (minutes):</label>
-            <input id="pomodoroDuration" v-model.number="settings.pomodoroDuration" type="number" min="1" required>
-          </div>
-          <div>
-            <label for="shortBreakDuration">Short Break Duration (minutes):</label>
-            <input id="shortBreakDuration" v-model.number="settings.shortBreakDuration" type="number" min="1" required>
-          </div>
-          <div>
-            <label for="longBreakDuration">Long Break Duration (minutes):</label>
-            <input id="longBreakDuration" v-model.number="settings.longBreakDuration" type="number" min="1" required>
-          </div>
-          <div>
-            <label for="longBreakInterval">Long Break Interval:</label>
-            <input id="longBreakInterval" v-model.number="settings.longBreakInterval" type="number" min="1" required>
-          </div>
-          <div>
-            <label for="autoStartPomodoro">Auto Start Pomodoro:</label>
-            <input id="autoStartPomodoro" v-model="settings.autoStartPomodoro" type="checkbox">
-          </div>
-          <div>
-            <label for="autoStartBreak">Auto Start Break:</label>
-            <input id="autoStartBreak" v-model="settings.autoStartBreak" type="checkbox">
-          </div>
-          <button type="submit">Save</button>
-          <button type="button" @click="$emit('close')">Cancel</button>
-        </form>
+      <div class="modal-dialog" @click.stop>
+          <form class="modal-content" @submit.prevent="saveSettings">
+            <div class="modal-header">
+              <h5 class="modal-title">Settings</h5>
+              <button type="button" class="btn-close ms-auto" @click="$emit('close')" aria-label="Close"></button>
+            </div>
+            <div class='modal-body'>
+            <div class='mb-3'>
+              <label class="form-label" for="pomodoroDuration">Pomodoro Duration (minutes):</label>
+              <input class="form-control" id="pomodoroDuration" v-model.number="settings.pomodoroDuration" type="number" min="1" required>
+            </div>
+            <div>
+              <label for="shortBreakDuration">Short Break Duration (minutes):</label>
+              <input id="shortBreakDuration" v-model.number="settings.shortBreakDuration" type="number" min="1" required>
+            </div>
+            <div>
+              <label for="longBreakDuration">Long Break Duration (minutes):</label>
+              <input id="longBreakDuration" v-model.number="settings.longBreakDuration" type="number" min="1" required>
+            </div>
+            <div>
+              <label for="longBreakInterval">Long Break Interval:</label>
+              <input id="longBreakInterval" v-model.number="settings.longBreakInterval" type="number" min="1" required>
+            </div>
+            <div>
+              <label for="autoStartPomodoro">Auto Start Pomodoro:</label>
+              <input id="autoStartPomodoro" v-model="settings.autoStartPomodoro" type="checkbox">
+            </div>
+            <div>
+              <label for="autoStartBreak">Auto Start Break:</label>
+              <input id="autoStartBreak" v-model="settings.autoStartBreak" type="checkbox">
+            </div>
+            </div>
+            <div class='modal-footer'>
+              <button type="submit">Save</button>
+              <button type="button" @click="$emit('close')">Cancel</button>
+            </div>
+          </form>
       </div>
     </div>
   </transition>

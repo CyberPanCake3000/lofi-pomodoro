@@ -13,7 +13,11 @@ export default defineNuxtConfig({
   },
   css: [
     '@/assets/main.css',
-    '@/assets/fonts.css'
+    '@/assets/fonts.css',
+    'bootstrap/dist/css/bootstrap.min.css'
+  ],
+  plugins: [
+    { src: '~/plugins/bootstrap.js', mode: 'client' }
   ],
   components: true,
   buildModules: [],
