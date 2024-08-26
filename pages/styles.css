@@ -1,0 +1,111 @@
+.device {
+  width: 450px;
+  height: 300px;
+  background: #f4bade;
+  border: 5px solid #B73B7D;
+  box-shadow:
+    inset 3px 4px 1px rgba(255, 255, 255, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 250px;
+  flex-direction: column;
+}
+
+.timer {
+  width: 280px;
+  height: 130px;
+  background-color: #DAFFFB;
+  border-radius: 200px;
+  font-size: 7em;
+  font-family: 'DS-DIGI';
+  flex-direction: row;
+  margin-bottom: 20px;
+  border: 7px solid #86D4DE;
+  box-shadow:
+    0 0 0 3px #562E5C,
+    0 0 0 7px #FFE1F4,
+    0 0 0 11px #B73B7D;
+}
+
+.main-buttons {
+  display: flex;
+  justify-content: space-around;
+  width: 90%;
+  margin-top: -20px;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 5px;
+  transition: transform 0.1s;
+}
+
+button:hover {
+  transform: scale(1.1);
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lofi-button.active svg {
+  fill: #FFF961;
+}
+
+.lofi-button svg {
+  fill: #aaaaaa;
+}
+
+.skip-icon {
+  height: 50px;
+}
+
+.settings-icon {
+  height: 50px;
+}
+
+.stat-icon {
+  height: 40px;
+  transform: rotate(15deg);
+}
+
+.cute-title {
+  font-family: 'Itim';
+}
+
+.main-button-content {
+  width: 70px;
+}
+
+.main-button-content2 {
+  margin-bottom: -60px;
+}
+
+.main-button-content {
+  margin-bottom: -70px;
+}
+
+.main-button-container {
+  padding: 0 !important;
+}
+
+.play-icon {
+  height: 60px;
+}
+
+.pause-icon {
+  height: 60px;
+}
+
+.device-content {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  margin-top: -30px;
+}

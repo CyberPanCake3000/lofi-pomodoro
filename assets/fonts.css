@@ -1,0 +1,13 @@
+@font-face {
+  font-family: 'DS-DIGI';
+  src: url('@/assets/fonts/DS-DIGI.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Itim';
+  src: url('@/assets/fonts/Itim-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
