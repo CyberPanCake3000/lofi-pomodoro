@@ -2,11 +2,41 @@ import { ref, onMounted, onUnmounted } from 'vue';
 
 export default function usePomodoro() {
   const time = ref('25:00');
-  let interval = null;
+  const settings = reactive({
+    pomodoroDuration: 25,
+    shortBreakDuration: 5,
+    longBreakDuration: 15,
+    longBreakInterval: 4,
+    autoStartPomodoro: false,
+    autoStartBreak: false
+  });
+
   const timerRunning = ref(false);
   const isPomodoro = ref(true);
   const lofiPlaying = ref(false);
   const lofiAudio = ref(null);
+  const settingsOpen = ref(false);
+  const pomodoroCount = ref(0);
+
+  let interval = null;
+
+  const formatTime = (minutes) => {
+    return `${String(minutes).padStart(2, '0')}:00`;
+  };
+
+  const getTimerDuration = () => {
+    if (isPomodoro.value) {
+      return settings.pomodoroDuration;
+    } else {
+      return (pomodoroCount.value % settings.longBreakInterval === 0)
+        ? settings.longBreakDuration
+        : settings.shortBreakDuration;
+    }
+  };
+
+  const resetTimer = () => {
+    time.value = formatTime(getTimerDuration());
+  };
 
   const startTimer = () => {
     if (interval) return;
@@ -17,11 +47,16 @@ export default function usePomodoro() {
         if (minutes === 0) {
           clearInterval(interval);
           interval = null;
-
-          alert(isPomodoro.value ? 'Pomodoro is over!' : 'Break is over!');
+          if (isPomodoro.value) {
+            pomodoroCount.value++;
+          }
           isPomodoro.value = !isPomodoro.value;
-          time.value = isPomodoro.value ? '25:00' : '05:00';
-          timerRunning.value = false;
+          resetTimer();
+          if ((isPomodoro.value && settings.autoStartPomodoro) || (!isPomodoro.value && settings.autoStartBreak)) {
+            startTimer();
+          } else {
+            timerRunning.value = false;
+          }
           return;
         }
         minutes--;
@@ -32,6 +67,7 @@ export default function usePomodoro() {
       time.value = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }, 1000);
 
+    timerRunning.value = true;
     if (lofiPlaying.value && isPomodoro.value) lofiAudio.value.play();
   };
 
@@ -39,6 +75,7 @@ export default function usePomodoro() {
     if (interval) {
       clearInterval(interval);
       interval = null;
+      timerRunning.value = false;
       if (lofiPlaying.value && isPomodoro.value) lofiAudio.value.pause();
     }
   };
@@ -49,7 +86,6 @@ export default function usePomodoro() {
     } else {
       startTimer();
     }
-    timerRunning.value = !timerRunning.value;
   };
 
   const toggleLofi = () => {
@@ -63,10 +99,14 @@ export default function usePomodoro() {
 
   const skipTimer = () => {
     stopTimer();
+    if (isPomodoro.value) {
+      pomodoroCount.value++;
+    }
     isPomodoro.value = !isPomodoro.value;
-    time.value = isPomodoro.value ? '25:00' : '05:00';
-    timerRunning.value = false;
-    if (lofiPlaying.value && isPomodoro.value) lofiAudio.value.pause();
+    resetTimer();
+    if ((isPomodoro.value && settings.autoStartPomodoro) || (!isPomodoro.value && settings.autoStartBreak)) {
+      startTimer();
+    }
   };
 
 
@@ -108,8 +148,19 @@ export default function usePomodoro() {
     statOpenModal.value = false;
   }
 
+  const updateSettings = (newSettings) => {
+    Object.assign(settings, newSettings);
+    resetTimer();
+  };
+
+  watch(settings, () => {
+    resetTimer();
+  });
+
 
   return {
+    pomodoroCount,
+    
     lofiPlaying,
     lofiAudio,
     toggleLofi,
@@ -119,9 +170,11 @@ export default function usePomodoro() {
     toggleTimer,
     skipTimer,
 
+    settings,
     settingsOpenModal,
     openSettings,
     closeSettings,
+    updateSettings,
 
     showStat,
     closeStat,

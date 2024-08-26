@@ -48,7 +48,12 @@
     </div>
   </div>
 
-  <SettingsModal :show="settingsOpenModal" @close="closeSettings" />
+  <SettingsModal
+    :show="settingsOpenModal"
+    :initialSettings="settings"
+    @close="closeSettings"
+    @save="updateSettings"
+  />
   <StatModal :show="statOpenModal" @close="closeStat" />
 </template>
 
@@ -68,21 +73,26 @@ definePageMeta({
 });
 
 const {
-  time,
-  timerRunning,
+  pomodoroCount,
+
   lofiPlaying,
   lofiAudio,
-  toggleTimer,
   toggleLofi,
+
+  timerRunning,
+  time,
+  toggleTimer,
   skipTimer,
 
+  settings,
   settingsOpenModal,
   openSettings,
   closeSettings,
+  updateSettings,
 
-  statOpenModal,
   showStat,
   closeStat,
+  statOpenModal,
 } = usePomodoro();
 </script>
 
