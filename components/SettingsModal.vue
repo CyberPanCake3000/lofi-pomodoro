@@ -1,43 +1,75 @@
 <template>
-  <transition name="modal" tabindex="-1">
+  <transition name="modal fade" tabindex="-1">
     <div v-if="show" class="modal-overlay" @click="$emit('close')">
       <div class="modal-dialog" @click.stop>
-          <form class="modal-content" @submit.prevent="saveSettings">
-            <div class="modal-header">
-              <h5 class="modal-title">Settings</h5>
-              <button type="button" class="btn-close ms-auto" @click="$emit('close')" aria-label="Close"></button>
-            </div>
+
+        <div class='modal-content'>
+          <div class="modal-header">
+            <h5 class="modal-title">Settings</h5>
+            <button type="button" class="btn-close ms-auto" @click="$emit('close')" aria-label="Close"></button>
+          </div>
+
+          <form @submit.prevent="saveSettings">
             <div class='modal-body'>
-            <div class='mb-3'>
-              <label class="form-label" for="pomodoroDuration">Pomodoro Duration (minutes):</label>
-              <input class="form-control" id="pomodoroDuration" v-model.number="settings.pomodoroDuration" type="number" min="1" required>
-            </div>
-            <div>
-              <label for="shortBreakDuration">Short Break Duration (minutes):</label>
-              <input id="shortBreakDuration" v-model.number="settings.shortBreakDuration" type="number" min="1" required>
-            </div>
-            <div>
-              <label for="longBreakDuration">Long Break Duration (minutes):</label>
-              <input id="longBreakDuration" v-model.number="settings.longBreakDuration" type="number" min="1" required>
-            </div>
-            <div>
-              <label for="longBreakInterval">Long Break Interval:</label>
-              <input id="longBreakInterval" v-model.number="settings.longBreakInterval" type="number" min="1" required>
-            </div>
-            <div>
-              <label for="autoStartPomodoro">Auto Start Pomodoro:</label>
-              <input id="autoStartPomodoro" v-model="settings.autoStartPomodoro" type="checkbox">
-            </div>
-            <div>
-              <label for="autoStartBreak">Auto Start Break:</label>
-              <input id="autoStartBreak" v-model="settings.autoStartBreak" type="checkbox">
-            </div>
+
+              <div class='mb-3'>
+                <div class='row g-3 mb-3'>
+                  <div class='col'>
+                    <label class="form-label d-block mb-1 fs-6" for="pomodoroDuration">Pomodoro</label>
+                    <input class="form-control" id="pomodoroDuration" v-model.number="settings.pomodoroDuration"
+                      type="number" min="1" required>
+                  </div>
+                  <div class='col'>
+                    <label class="form-label d-block mb-1 fs-6" for="shortBreakDuration">Short Break</label>
+                    <input class="form-control" id="shortBreakDuration" v-model.number="settings.shortBreakDuration"
+                      type="number" min="1" required>
+                  </div>
+                  <div class='col'>
+                    <label class="form-label d-block mb-1 fs-6" for="longBreakDuration">Long Break</label>
+                    <input class="form-control" id="longBreakDuration" v-model.number="settings.longBreakDuration"
+                      type="number" min="1" required>
+                  </div>
+                </div>
+
+                <div class='row mb-3'>
+                  <div class='row col-12 pe-0'>
+                    <label class='form-label col-10 mb-0 d-flex align-items-center' for="longBreakInterval">Long Break
+                      Interval</label>
+                    <input class="form-control col" id="longBreakInterval" v-model.number="settings.longBreakInterval"
+                      type="number" min="1" required>
+                  </div>
+                </div>
+
+                <div class='row mb-2'>
+                  <div class='col-12'>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" id="autoStartPomodoro" v-model="settings.autoStartPomodoro"
+                        type="checkbox" role="switch">
+                      <label class="form-check-label" for="autoStartPomodoro">Auto Start Pomodoro</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class='row'>
+                  <div class='col-12'>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" id="autoStartBreak" v-model="settings.autoStartBreak"
+                        type="checkbox" role="switch">
+                      <label class="form-check-label" for="autoStartBreak">Auto Start Break</label>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
             <div class='modal-footer'>
-              <button type="submit">Save</button>
-              <button type="button" @click="$emit('close')">Cancel</button>
+              <button type="submit" class="btn btn-primary me-2">Save</button>
+              <button type="button" class="btn btn-secondary" @click="$emit('close')">Cancel</button>
             </div>
           </form>
+
+        </div>
+
       </div>
     </div>
   </transition>
@@ -87,11 +119,23 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.modal-enter-active, .modal-leave-active {
+.modal-enter-active,
+.modal-leave-active {
   transition: opacity 0.3s;
 }
 
-.modal-enter-from, .modal-leave-to {
+.modal-enter-from,
+.modal-leave-to {
   opacity: 0;
+}
+
+.modal-dialog {
+  margin: 1.75rem auto;
+  min-width: 325px;
+  max-width: 350px;
+}
+
+.modal-content {
+  border-radius: 0.3rem;
 }
 </style>
