@@ -1,14 +1,18 @@
 import { ref, onMounted, onUnmounted } from 'vue';
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 export default function usePomodoro() {
   const time = ref('25:00');
+  const defaultStreamLink = 'https://ec3.yesstreaming.net:3755/stream';
   const settings = reactive({
     pomodoroDuration: 25,
     shortBreakDuration: 5,
     longBreakDuration: 15,
     longBreakInterval: 4,
     autoStartPomodoro: false,
-    autoStartBreak: false
+    autoStartBreak: false,
+    streamLink: defaultStreamLink,
   });
 
   const timerRunning = ref(false);
@@ -17,6 +21,7 @@ export default function usePomodoro() {
   const lofiAudio = ref(null);
   const settingsOpen = ref(false);
   const pomodoroCount = ref(0);
+  const streamError = ref(false);
 
   let interval = null;
 
@@ -148,9 +153,37 @@ export default function usePomodoro() {
     statOpenModal.value = false;
   }
 
-  const updateSettings = (newSettings) => {
+  const checkStreamValidity = async (url) => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      return response.ok;
+    } catch (error) {
+      console.error('Error checking stream:', error);
+      return false;
+    }
+  };
+
+  const updateSettings = async (newSettings) => {
+    const oldStreamLink = settings.streamLink;
     Object.assign(settings, newSettings);
     resetTimer();
+
+    if (newSettings.streamLink !== oldStreamLink) {
+      checkStreamValidity(newSettings.streamLink).then((isValid) => {
+        if (!isValid) {
+          toast.error('Invalid stream URL. Reverting to default stream.', {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 5000,
+          });
+          settings.streamLink = defaultStreamLink;
+          if (lofiAudio.value) {
+            lofiAudio.value.src = defaultStreamLink;
+          }
+        }
+      });
+    }
+
+    return true;
   };
 
   watch(settings, () => {
@@ -160,24 +193,22 @@ export default function usePomodoro() {
 
   return {
     pomodoroCount,
-    
     lofiPlaying,
     lofiAudio,
     toggleLofi,
-
     timerRunning,
     time,
     toggleTimer,
     skipTimer,
-
     settings,
     settingsOpenModal,
-    openSettings,
-    closeSettings,
+    openSettings: () => settingsOpenModal.value = true,
+    closeSettings: () => settingsOpenModal.value = false,
     updateSettings,
-
     showStat,
     closeStat,
     statOpenModal,
+    streamError,
+    defaultStreamLink,
   };
 }

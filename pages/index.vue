@@ -1,12 +1,11 @@
 <template>
-
   <div class="device centered">
     <div class='device-content'>
       <div class="timer centered">{{ time }}</div>
       <div class='main-buttons'>
         <button @click="toggleLofi" :class="{ active: lofiPlaying }" class='main-button-container lofi-button'>
           <div class='main-button-content1'>
-            <LofiIcon :active="lofiPlaying" class="svg-icon lofi-icon"/>
+            <LofiIcon :active="lofiPlaying" class="svg-icon lofi-icon" />
             <span class='cute-title lofi-title' v-if='lofiPlaying'>
               lofi off
             </span>
@@ -30,12 +29,12 @@
           </div>
         </button>
 
-       <button @click="openSettings" :class="{ active: settingsOpenModal }" class='main-button-container'>
-        <div class='main-button-content2'>
-          <SettingsIcon :active="settingsOpenModal" />
-          <span class='cute-title settings-title'>settings</span>
-        </div>
-      </button>
+        <button @click="openSettings" :class="{ active: settingsOpenModal }" class='main-button-container'>
+          <div class='main-button-content2'>
+            <SettingsIcon :active="settingsOpenModal" />
+            <span class='cute-title settings-title'>settings</span>
+          </div>
+        </button>
 
         <button @click="showStat" :class="{ active: statOpenModal }" class='main-button-container'>
           <div class='main-button-content1'>
@@ -44,7 +43,7 @@
           </div>
         </button>
       </div>
-      <audio ref="lofiAudio" src="https://ec3.yesstreaming.net:3755/stream" preload="none"></audio>
+      <audio ref="lofiAudio" :src="settings.streamLink" preload="none"></audio>
     </div>
   </div>
 
@@ -67,32 +66,27 @@ import PlayIcon from '@/components/icons/PlayIcon.vue';
 import PauseIcon from '@/components/icons/PauseIcon.vue';
 import SkipIcon from '@/components/icons/SkipIcon.vue';
 import SettingsIcon from '@/components/icons/SettingsIcon.vue';
-
-definePageMeta({
-  layout: 'centered'
-});
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 const {
   pomodoroCount,
-
   lofiPlaying,
   lofiAudio,
   toggleLofi,
-
   timerRunning,
   time,
   toggleTimer,
   skipTimer,
-
   settings,
   settingsOpenModal,
   openSettings,
   closeSettings,
   updateSettings,
-
   showStat,
   closeStat,
   statOpenModal,
+  defaultStreamLink,
 } = usePomodoro();
 </script>
 

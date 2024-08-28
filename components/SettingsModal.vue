@@ -1,32 +1,30 @@
 <template>
   <transition name="modal fade" tabindex="-1">
-    <div v-if="show" class="modal-overlay" @click="$emit('close')">
+    <div v-if="show" class="modal-overlay" @click="closeModal">
       <div class="modal-dialog" @click.stop>
-
         <div class='modal-content'>
           <div class="modal-header">
             <h5 class="modal-title">Settings</h5>
-            <button type="button" class="btn-close ms-auto" @click="$emit('close')" aria-label="Close"></button>
+            <button type="button" class="btn-close ms-auto" @click="closeModal" aria-label="Close"></button>
           </div>
 
           <form @submit.prevent="saveSettings">
             <div class='modal-body'>
-
               <div class='mb-3'>
                 <div class='row g-3 mb-3'>
                   <div class='col'>
                     <label class="form-label d-block mb-1 fs-6" for="pomodoroDuration">Pomodoro</label>
-                    <input class="form-control" id="pomodoroDuration" v-model.number="settings.pomodoroDuration"
+                    <input class="form-control" id="pomodoroDuration" v-model.number="localSettings.pomodoroDuration"
                       type="number" min="1" required>
                   </div>
                   <div class='col'>
                     <label class="form-label d-block mb-1 fs-6" for="shortBreakDuration">Short Break</label>
-                    <input class="form-control" id="shortBreakDuration" v-model.number="settings.shortBreakDuration"
+                    <input class="form-control" id="shortBreakDuration" v-model.number="localSettings.shortBreakDuration"
                       type="number" min="1" required>
                   </div>
                   <div class='col'>
                     <label class="form-label d-block mb-1 fs-6" for="longBreakDuration">Long Break</label>
-                    <input class="form-control" id="longBreakDuration" v-model.number="settings.longBreakDuration"
+                    <input class="form-control" id="longBreakDuration" v-model.number="localSettings.longBreakDuration"
                       type="number" min="1" required>
                   </div>
                 </div>
@@ -35,7 +33,7 @@
                   <div class='row col-12 pe-0'>
                     <label class='form-label col-10 mb-0 d-flex align-items-center' for="longBreakInterval">Long Break
                       Interval</label>
-                    <input class="form-control col" id="longBreakInterval" v-model.number="settings.longBreakInterval"
+                    <input class="form-control col" id="longBreakInterval" v-model.number="localSettings.longBreakInterval"
                       type="number" min="1" required>
                   </div>
                 </div>
@@ -43,7 +41,7 @@
                 <div class='row mb-2'>
                   <div class='col-12'>
                     <div class="form-check form-switch">
-                      <input class="form-check-input" id="autoStartPomodoro" v-model="settings.autoStartPomodoro"
+                      <input class="form-check-input" id="autoStartPomodoro" v-model="localSettings.autoStartPomodoro"
                         type="checkbox" role="switch">
                       <label class="form-check-label" for="autoStartPomodoro">Auto Start Pomodoro</label>
                     </div>
@@ -53,47 +51,58 @@
                 <div class='row'>
                   <div class='col-12'>
                     <div class="form-check form-switch">
-                      <input class="form-check-input" id="autoStartBreak" v-model="settings.autoStartBreak"
+                      <input class="form-check-input" id="autoStartBreak" v-model="localSettings.autoStartBreak"
                         type="checkbox" role="switch">
                       <label class="form-check-label" for="autoStartBreak">Auto Start Break</label>
                     </div>
                   </div>
                 </div>
 
+                <div class='mb-3'>
+                  <label class="form-label d-block mb-1 fs-6" for="streamLink">Stream Link</label>
+                  <input class="form-control" id="streamLink" v-model="localSettings.streamLink" type="url" required>
+                </div>
               </div>
             </div>
             <div class='modal-footer'>
               <button type="submit" class="btn btn-primary me-2">Save</button>
-              <button type="button" class="btn btn-secondary" @click="$emit('close')">Cancel</button>
+              <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
             </div>
           </form>
-
         </div>
-
       </div>
     </div>
   </transition>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 export default {
   name: 'SettingsModal',
   props: {
     show: Boolean,
-    initialSettings: Object
+    initialSettings: Object,
   },
   emits: ['close', 'save'],
   setup(props, { emit }) {
-    const settings = ref({ ...props.initialSettings });
+    const localSettings = ref({...props.initialSettings});
+
+    watch(() => props.initialSettings, (newSettings) => {
+      localSettings.value = {...newSettings};
+    }, { deep: true });
 
     const saveSettings = () => {
-      emit('save', settings.value);
+      emit('save', {...localSettings.value});
       emit('close');
     };
 
-    return { settings, saveSettings };
+    const closeModal = () => {
+      localSettings.value = {...props.initialSettings};
+      emit('close');
+    };
+
+    return { localSettings, saveSettings, closeModal };
   }
 }
 </script>
