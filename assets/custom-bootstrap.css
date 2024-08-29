@@ -1,0 +1,36 @@
+:root {
+  --primary-pink: #FF9BBA;
+  --secondary-pink: #ff98ba;
+  --blue-accent: #B3E5FC;
+  --text-color: #333333;
+  --border-color: #B73B7D;
+}
+
+.form-control, .btn {
+  border-radius: 3em;
+}
+
+.form-control {
+  border: 1px solid var(--blue-accent);
+}
+
+.form-check-input {
+  width: 3em !important;
+  height: 2em;
+  border: 1px solid var(--blue-accent);
+}
+
+.modal-content {
+  border-radius: 2rem;
+  border: 5px solid var(--border-color);
+}
+
+.btn-primary {
+  background-color: var(--primary-pink);
+  border: solid 3px var(--border-color);
+}
+
+.btn-primary:hover {
+  background-color: #ff69b4;
+  border: solid 4px var(--border-color);
+}

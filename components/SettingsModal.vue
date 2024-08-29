@@ -2,8 +2,8 @@
   <transition name="modal fade" tabindex="-1">
     <div v-if="show" class="modal-overlay" @click="closeModal">
       <div class="modal-dialog" @click.stop>
-        <div class='modal-content'>
-          <div class="modal-header">
+        <div class='modal-content p-4'>
+          <div class="modal-header mb-3">
             <h5 class="modal-title">Settings</h5>
             <button type="button" class="btn-close ms-auto" @click="closeModal" aria-label="Close"></button>
           </div>
@@ -29,7 +29,7 @@
                   </div>
                 </div>
 
-                <div class='row mb-3'>
+                <div class='row mb-2'>
                   <div class='row col-12 pe-0'>
                     <label class='form-label col-10 mb-0 d-flex align-items-center' for="longBreakInterval">Long Break
                       Interval</label>
@@ -40,20 +40,20 @@
 
                 <div class='row mb-2'>
                   <div class='col-12'>
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" id="autoStartPomodoro" v-model="localSettings.autoStartPomodoro"
+                    <div class="form-check form-switch d-flex align-center">
+                      <input class="form-check-input me-2" id="autoStartPomodoro" v-model="localSettings.autoStartPomodoro"
                         type="checkbox" role="switch">
-                      <label class="form-check-label" for="autoStartPomodoro">Auto Start Pomodoro</label>
+                      <label class="form-check-label mb-0 d-flex align-items-center" for="autoStartPomodoro">Auto Start Pomodoro</label>
                     </div>
                   </div>
                 </div>
 
-                <div class='row'>
+                <div class='row mb-2'>
                   <div class='col-12'>
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" id="autoStartBreak" v-model="localSettings.autoStartBreak"
+                    <div class="form-check form-switch d-flex align-center">
+                      <input class="form-check-input me-2" id="autoStartBreak" v-model="localSettings.autoStartBreak"
                         type="checkbox" role="switch">
-                      <label class="form-check-label" for="autoStartBreak">Auto Start Break</label>
+                      <label class="form-check-label mb-0 d-flex align-items-center" for="autoStartBreak">Auto Start Break</label>
                     </div>
                   </div>
                 </div>
@@ -64,8 +64,8 @@
                 </div>
               </div>
             </div>
-            <div class='modal-footer'>
-              <button type="submit" class="btn btn-primary me-2">Save</button>
+            <div class='modal-footer d-flex justify-content-center'>
+              <button type="submit" class="btn btn-primary me-2 btn-primary">Save</button>
               <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
             </div>
           </form>
@@ -123,8 +123,6 @@ export default {
 
 .modal-content {
   background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -144,7 +142,4 @@ export default {
   max-width: 350px;
 }
 
-.modal-content {
-  border-radius: 0.3rem;
-}
 </style>

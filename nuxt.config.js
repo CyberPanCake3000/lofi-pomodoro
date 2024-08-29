@@ -12,9 +12,10 @@ export default defineNuxtConfig({
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
   css: [
+    'bootstrap/dist/css/bootstrap.min.css',
+    '@/assets/custom-bootstrap.css',
     '@/assets/main.css',
     '@/assets/fonts.css',
-    'bootstrap/dist/css/bootstrap.min.css'
   ],
   plugins: [
     { src: '~/plugins/bootstrap.js', mode: 'client' }
@@ -22,5 +23,7 @@ export default defineNuxtConfig({
   components: true,
   buildModules: [],
   modules: [],
-  build: {},
+  build: {
+    transpile: ['bootstrap']
+  },
 })
