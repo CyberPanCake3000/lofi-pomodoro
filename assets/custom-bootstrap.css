@@ -1,9 +1,16 @@
 :root {
-  --primary-pink: #FF9BBA;
-  --secondary-pink: #ff98ba;
-  --blue-accent: #B3E5FC;
-  --text-color: #333333;
-  --border-color: #B73B7D;
+  --bs-primary: #FF9BBA;
+  --bs-secondary: #FFC0D5;
+  --bs-success: #A7E8BD;
+  --bs-info: #B3E5FC;
+  --bs-accent: #8dd4f5;
+  --bs-warning: #FFE082;
+  --bs-danger: #FF8A80;
+  --bs-light: #FFFFFF;
+  --bs-dark: #424242;
+
+  --bs-body-color: #333333;
+  --bs-border-color: #B73B7D;
 }
 
 .form-control, .btn {
@@ -11,26 +18,41 @@
 }
 
 .form-control {
-  border: 1px solid var(--blue-accent);
+  border: 1px solid var(--bs-accent);
 }
 
 .form-check-input {
   width: 3em !important;
   height: 2em;
-  border: 1px solid var(--blue-accent);
+  border: 1px solid var(--bs-accent);
+}
+
+.form-check-input:checked {
+  background-color: var(--bs-primary);
+  border: 2px solid var(--bs-border-color);
 }
 
 .modal-content {
   border-radius: 2rem;
-  border: 5px solid var(--border-color);
+  border: 5px solid var(--bs-border-color);
 }
 
 .btn-primary {
-  background-color: var(--primary-pink);
-  border: solid 3px var(--border-color);
+  background-color: var(--bs-primary);
+  border:
+   solid 4px var(--bs-border-color);
 }
 
 .btn-primary:hover {
-  background-color: #ff69b4;
-  border: solid 4px var(--border-color);
+  background-color: var(--bs-primary);
+  border: solid 4px var(--bs-border-color);
+}
+
+.btn-secondary {
+  background-color: var(--bs-secondary);
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bs-accent);
 }

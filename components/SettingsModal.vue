@@ -31,7 +31,7 @@
 
                 <div class='row mb-2'>
                   <div class='row col-12 pe-0'>
-                    <label class='form-label col-10 mb-0 d-flex align-items-center' for="longBreakInterval">Long Break
+                    <label class='form-label col-9 mb-0 d-flex align-items-center' for="longBreakInterval">Long Break
                       Interval</label>
                     <input class="form-control col" id="longBreakInterval" v-model.number="localSettings.longBreakInterval"
                       type="number" min="1" required>
