@@ -22,8 +22,16 @@ export default function usePomodoro() {
   const settingsOpen = ref(false);
   const pomodoroCount = ref(0);
   const streamError = ref(false);
+  const notificationAudio = ref(null);
 
   let interval = null;
+
+  const initAudio = async () => {
+    if (typeof window !== 'undefined') {
+      const bellDingModule = await import('@/assets/sounds/bell-ding.mp3');
+      notificationAudio.value = new Audio(bellDingModule.default);
+    }
+  };
 
   const formatTime = (minutes) => {
     return `${String(minutes).padStart(2, '0')}:00`;
@@ -43,9 +51,32 @@ export default function usePomodoro() {
     time.value = formatTime(getTimerDuration());
   };
 
+  const fadeOutLofi = (duration) => {
+    if (!lofiAudio.value) return;
+
+    const fadeOutInterval = 50;
+    const volumeStep = lofiAudio.value.volume / (duration * 1000 / fadeOutInterval);
+
+    const fade = setInterval(() => {
+      lofiAudio.value.volume = Math.max(0, lofiAudio.value.volume - volumeStep);
+      if (lofiAudio.value.volume <= 0) {
+        clearInterval(fade);
+        lofiAudio.value.pause();
+        lofiAudio.value.volume = 1; // Reset volume for next play
+      }
+    }, fadeOutInterval);
+  };
+
+  const playBellSound = () => {
+    if (notificationAudio.value) {
+      notificationAudio.value.play();
+    }
+  };
+
   const startTimer = () => {
     if (interval) return;
     let [minutes, seconds] = time.value.split(':').map(Number);
+    const totalSeconds = minutes * 60 + seconds;
 
     interval = setInterval(() => {
       if (seconds === 0) {
@@ -54,6 +85,10 @@ export default function usePomodoro() {
           interval = null;
           if (isPomodoro.value) {
             pomodoroCount.value++;
+            fadeOutLofi(5);
+            setTimeout(playBellSound, 5000);
+          } else {
+            playBellSound();
           }
           isPomodoro.value = !isPomodoro.value;
           resetTimer();
@@ -69,11 +104,18 @@ export default function usePomodoro() {
       } else {
         seconds--;
       }
+
+      if (isPomodoro.value && lofiPlaying.value && totalSeconds - (minutes * 60 + seconds) === 30) {
+        fadeOutLofi(30);
+      }
+
       time.value = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }, 1000);
 
     timerRunning.value = true;
-    if (lofiPlaying.value && isPomodoro.value) lofiAudio.value.play();
+    if (lofiPlaying.value && isPomodoro.value) {
+      lofiAudio.value.play();
+    }
   };
 
   const stopTimer = () => {
@@ -116,12 +158,12 @@ export default function usePomodoro() {
 
 
   onMounted(() => {
-
     if (lofiAudio.value) {
       lofiAudio.value.addEventListener('play', () => console.log('Audio playing'));
       lofiAudio.value.addEventListener('pause', () => console.log('Audio paused'));
       lofiAudio.value.addEventListener('error', (e) => console.error('Audio error', e));
     }
+    initAudio();
   });
 
   onUnmounted(() => {
@@ -210,5 +252,6 @@ export default function usePomodoro() {
     statOpenModal,
     streamError,
     defaultStreamLink,
+    notificationAudio,
   };
 }
