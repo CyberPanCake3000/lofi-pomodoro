@@ -14,27 +14,54 @@
                 <div class='row g-3 mb-3'>
                   <div class='col'>
                     <label class="form-label d-block mb-1 fs-6" for="pomodoroDuration">Pomodoro</label>
-                    <input class="form-control" id="pomodoroDuration" v-model.number="localSettings.pomodoroDuration"
-                      type="number" min="1" required>
+                    <input
+                      class="form-control"
+                      :class="{ 'is-invalid': !isValidInput(localSettings.pomodoroDuration) }"
+                      id="pomodoroDuration"
+                      v-model="localSettings.pomodoroDuration"
+                      @input="validateInput('pomodoroDuration')"
+                      type="text"
+                      required
+                    >
                   </div>
                   <div class='col'>
                     <label class="form-label d-block mb-1 fs-6" for="shortBreakDuration">Short Break</label>
-                    <input class="form-control" id="shortBreakDuration" v-model.number="localSettings.shortBreakDuration"
-                      type="number" min="1" required>
+                    <input
+                      class="form-control"
+                      :class="{ 'is-invalid': !isValidInput(localSettings.shortBreakDuration) }"
+                      id="shortBreakDuration"
+                      v-model="localSettings.shortBreakDuration"
+                      @input="validateInput('shortBreakDuration')"
+                      type="text"
+                      required
+                    >
                   </div>
                   <div class='col'>
                     <label class="form-label d-block mb-1 fs-6" for="longBreakDuration">Long Break</label>
-                    <input class="form-control" id="longBreakDuration" v-model.number="localSettings.longBreakDuration"
-                      type="number" min="1" required>
+                    <input
+                      class="form-control"
+                      :class="{ 'is-invalid': !isValidInput(localSettings.longBreakDuration) }"
+                      id="longBreakDuration"
+                      v-model="localSettings.longBreakDuration"
+                      @input="validateInput('longBreakDuration')"
+                      type="text"
+                      required
+                    >
                   </div>
                 </div>
 
                 <div class='row mb-2'>
                   <div class='row col-12 pe-0'>
-                    <label class='form-label col-9 mb-0 d-flex align-items-center' for="longBreakInterval">Long Break
-                      Interval</label>
-                    <input class="form-control col" id="longBreakInterval" v-model.number="localSettings.longBreakInterval"
-                      type="number" min="1" required>
+                    <label class='form-label col-9 mb-0 d-flex align-items-center' for="longBreakInterval">Long Break Interval</label>
+                    <input
+                      class="form-control col"
+                      :class="{ 'is-invalid': !isValidInput(localSettings.longBreakInterval) }"
+                      id="longBreakInterval"
+                      v-model="localSettings.longBreakInterval"
+                      @input="validateInput('longBreakInterval')"
+                      type="text"
+                      required
+                    >
                   </div>
                 </div>
 
@@ -65,7 +92,7 @@
               </div>
             </div>
             <div class='modal-footer d-flex justify-content-center'>
-              <button type="submit" class="btn btn-primary me-2 btn-primary">Save</button>
+              <button type="submit" class="btn btn-primary me-2 btn-primary" :disabled="!isFormValid">Save</button>
               <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
             </div>
           </form>
@@ -76,13 +103,19 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 export default {
   name: 'SettingsModal',
   props: {
-    show: Boolean,
-    initialSettings: Object,
+    show: {
+      type: Boolean,
+      default: false
+    },
+    initialSettings: {
+      type: Object,
+      required: true
+    },
   },
   emits: ['close', 'save'],
   setup(props, { emit }) {
@@ -92,9 +125,30 @@ export default {
       localSettings.value = {...newSettings};
     }, { deep: true });
 
+    const isValidInput = (value) => {
+      return value === '' || /^[1-9]\d*$/.test(value.toString());
+    };
+
+    const validateInput = (field) => {
+      const currentValue = localSettings.value[field].toString();
+      const newValue = currentValue.replace(/^0+/, '').replace(/[^0-9]/g, '');
+      localSettings.value[field] = newValue;
+    };
+
+    const isFormValid = computed(() => {
+      return Object.entries(localSettings.value).every(([key, value]) => {
+        if (['pomodoroDuration', 'shortBreakDuration', 'longBreakDuration', 'longBreakInterval'].includes(key)) {
+          return isValidInput(value) && value !== '';
+        }
+        return true;
+      });
+    });
+
     const saveSettings = () => {
-      emit('save', {...localSettings.value});
-      emit('close');
+      if (isFormValid.value) {
+        emit('save', {...localSettings.value});
+        emit('close');
+      }
     };
 
     const closeModal = () => {
@@ -102,7 +156,14 @@ export default {
       emit('close');
     };
 
-    return { localSettings, saveSettings, closeModal };
+    return {
+      localSettings,
+      saveSettings,
+      closeModal,
+      isValidInput,
+      validateInput,
+      isFormValid
+    };
   }
 }
 </script>

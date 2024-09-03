@@ -47,12 +47,7 @@
     </div>
   </div>
 
-  <SettingsModal
-    :show="settingsOpenModal"
-    :initialSettings="settings"
-    @close="closeSettings"
-    @save="updateSettings"
-  />
+  <SettingsModal :show="settingsOpenModal" :initialSettings="settings" @close="closeSettings" @save="updateSettings" />
   <StatModal :show="statOpenModal" @close="closeStat" />
 </template>
 
