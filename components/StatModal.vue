@@ -25,7 +25,6 @@ export default {
   emits: ['close'],
   setup(props, { emit }) {
     const closeModal = () => {
-      localSettings.value = {...props.initialSettings};
       emit('close');
     };
 

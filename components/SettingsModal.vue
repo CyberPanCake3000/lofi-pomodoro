@@ -14,63 +14,44 @@
                 <div class='row g-3 mb-3'>
                   <div class='col'>
                     <label class="form-label d-block mb-1 fs-6" for="pomodoroDuration">Pomodoro</label>
-                    <input
-                      class="form-control"
-                      :class="{ 'is-invalid': !isValidInput(localSettings.pomodoroDuration) }"
-                      id="pomodoroDuration"
-                      v-model="localSettings.pomodoroDuration"
-                      @input="validateInput('pomodoroDuration')"
-                      type="text"
-                      required
-                    >
+                    <input class="form-control" :class="{ 'is-invalid': !isValidInput(localSettings.pomodoroDuration) }"
+                      id="pomodoroDuration" v-model="localSettings.pomodoroDuration"
+                      @input="validateInput('pomodoroDuration')" type="text" required>
                   </div>
                   <div class='col'>
                     <label class="form-label d-block mb-1 fs-6" for="shortBreakDuration">Short Break</label>
-                    <input
-                      class="form-control"
-                      :class="{ 'is-invalid': !isValidInput(localSettings.shortBreakDuration) }"
-                      id="shortBreakDuration"
-                      v-model="localSettings.shortBreakDuration"
-                      @input="validateInput('shortBreakDuration')"
-                      type="text"
-                      required
-                    >
+                    <input class="form-control"
+                      :class="{ 'is-invalid': !isValidInput(localSettings.shortBreakDuration) }" id="shortBreakDuration"
+                      v-model="localSettings.shortBreakDuration" @input="validateInput('shortBreakDuration')"
+                      type="text" required>
                   </div>
                   <div class='col'>
                     <label class="form-label d-block mb-1 fs-6" for="longBreakDuration">Long Break</label>
-                    <input
-                      class="form-control"
-                      :class="{ 'is-invalid': !isValidInput(localSettings.longBreakDuration) }"
-                      id="longBreakDuration"
-                      v-model="localSettings.longBreakDuration"
-                      @input="validateInput('longBreakDuration')"
-                      type="text"
-                      required
-                    >
+                    <input class="form-control"
+                      :class="{ 'is-invalid': !isValidInput(localSettings.longBreakDuration) }" id="longBreakDuration"
+                      v-model="localSettings.longBreakDuration" @input="validateInput('longBreakDuration')" type="text"
+                      required>
                   </div>
                 </div>
 
                 <div class='row mb-2'>
                   <div class='row col-12 pe-0'>
-                    <label class='form-label col-9 mb-0 d-flex align-items-center' for="longBreakInterval">Long Break Interval</label>
-                    <input
-                      class="form-control col"
-                      :class="{ 'is-invalid': !isValidInput(localSettings.longBreakInterval) }"
-                      id="longBreakInterval"
-                      v-model="localSettings.longBreakInterval"
-                      @input="validateInput('longBreakInterval')"
-                      type="text"
-                      required
-                    >
+                    <label class='form-label col-9 mb-0 d-flex align-items-center' for="longBreakInterval">Long Break
+                      Interval</label>
+                    <input class="form-control col"
+                      :class="{ 'is-invalid': !isValidInput(localSettings.longBreakInterval) }" id="longBreakInterval"
+                      v-model="localSettings.longBreakInterval" @input="validateInput('longBreakInterval')" type="text"
+                      required>
                   </div>
                 </div>
 
                 <div class='row mb-2'>
                   <div class='col-12'>
                     <div class="form-check form-switch d-flex align-center">
-                      <input class="form-check-input me-2" id="autoStartPomodoro" v-model="localSettings.autoStartPomodoro"
-                        type="checkbox" role="switch">
-                      <label class="form-check-label mb-0 d-flex align-items-center" for="autoStartPomodoro">Auto Start Pomodoro</label>
+                      <input class="form-check-input me-2" id="autoStartPomodoro"
+                        v-model="localSettings.autoStartPomodoro" type="checkbox" role="switch">
+                      <label class="form-check-label mb-0 d-flex align-items-center" for="autoStartPomodoro">Auto Start
+                        Pomodoro</label>
                     </div>
                   </div>
                 </div>
@@ -80,7 +61,8 @@
                     <div class="form-check form-switch d-flex align-center">
                       <input class="form-check-input me-2" id="autoStartBreak" v-model="localSettings.autoStartBreak"
                         type="checkbox" role="switch">
-                      <label class="form-check-label mb-0 d-flex align-items-center" for="autoStartBreak">Auto Start Break</label>
+                      <label class="form-check-label mb-0 d-flex align-items-center" for="autoStartBreak">Auto Start
+                        Break</label>
                     </div>
                   </div>
                 </div>
@@ -119,10 +101,10 @@ export default {
   },
   emits: ['close', 'save'],
   setup(props, { emit }) {
-    const localSettings = ref({...props.initialSettings});
+    const localSettings = ref({ ...props.initialSettings });
 
     watch(() => props.initialSettings, (newSettings) => {
-      localSettings.value = {...newSettings};
+      localSettings.value = { ...newSettings };
     }, { deep: true });
 
     const isValidInput = (value) => {
@@ -146,13 +128,13 @@ export default {
 
     const saveSettings = () => {
       if (isFormValid.value) {
-        emit('save', {...localSettings.value});
+        emit('save', { ...localSettings.value });
         emit('close');
       }
     };
 
     const closeModal = () => {
-      localSettings.value = {...props.initialSettings};
+      localSettings.value = { ...props.initialSettings };
       emit('close');
     };
 
@@ -202,5 +184,4 @@ export default {
   min-width: 325px;
   max-width: 350px;
 }
-
 </style>
