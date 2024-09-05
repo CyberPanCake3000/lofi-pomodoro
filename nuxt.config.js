@@ -13,9 +13,9 @@ export default defineNuxtConfig({
   },
   css: [
     'bootstrap/dist/css/bootstrap.min.css',
-    '@/assets/custom-bootstrap.css',
-    '@/assets/main.css',
-    '@/assets/fonts.css',
+    '@/assets/css/custom-bootstrap.css',
+    '@/assets/css/main.css',
+    '@/assets/css/fonts.css',
   ],
   plugins: [
     { src: '~/plugins/bootstrap.js', mode: 'client' }

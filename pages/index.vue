@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import usePomodoro from './script.js';
+import usePomodoro from '@/composables/usePomodoro.js';
 import SettingsModal from '@/components/SettingsModal.vue';
 import StatModal from '@/components/StatModal.vue';
 import StatIcon from '@/components/icons/StatIcon.vue'
@@ -70,5 +70,5 @@ const {
 </script>
 
 <style scoped>
-@import './styles.css';
+@import '@/assets/styles/pages/index.css';
 </style>

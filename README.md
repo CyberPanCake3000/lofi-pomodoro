@@ -56,7 +56,7 @@ This Pomodoro Timer App is a productivity tool built with Vue.js and Nuxt.js. It
 - `components/`: Vue components (MainButton, SettingsModal, StatModal, etc.)
 - `pages/`: Nuxt.js pages
 - `assets/`: Static assets like sounds and images
-- `script.js`: Main logic for the Pomodoro timer functionality
+- `composables/usePomodoro.js`: Main logic for the Pomodoro timer functionality
 
 ## Contributing
 
