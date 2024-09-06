@@ -77,20 +77,21 @@ export default function usePomodoro() {
     if (interval) return;
     let [minutes, seconds] = time.value.split(':').map(Number);
     const totalSeconds = minutes * 60 + seconds;
+    const startTime = Date.now();
 
     interval = setInterval(() => {
-      if (seconds === 0) {
-        if (minutes === 0) {
-          handleTimerEnd();
-          return;
-        }
-        minutes--;
-        seconds = 59;
-      } else {
-        seconds--;
+      const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+      const remainingSeconds = totalSeconds - elapsedSeconds;
+
+      if (remainingSeconds <= 0) {
+        handleTimerEnd();
+        return;
       }
 
-      if (isPomodoro.value && lofiPlaying.value && totalSeconds - (minutes * 60 + seconds) === 30) {
+      minutes = Math.floor(remainingSeconds / 60);
+      seconds = remainingSeconds % 60;
+
+      if (isPomodoro.value && lofiPlaying.value && remainingSeconds === 30) {
         fadeOutLofi(30);
       }
 
@@ -117,8 +118,12 @@ export default function usePomodoro() {
     interval = null;
     if (isPomodoro.value) {
       pomodoroCount.value++;
-      fadeOutLofi(5);
-      setTimeout(playBellSound, 5000);
+      if (lofiPlaying.value) {
+        fadeOutLofi(5);
+        setTimeout(playBellSound, 5000);
+      } else {
+        playBellSound();
+      }
     } else {
       playBellSound();
     }
@@ -195,21 +200,30 @@ export default function usePomodoro() {
   };
 
   // Lifecycle hooks
-  onMounted(() => {
-    if (lofiAudio.value) {
-      lofiAudio.value.addEventListener('play', () => console.log('Audio playing'));
-      lofiAudio.value.addEventListener('pause', () => console.log('Audio paused'));
-      lofiAudio.value.addEventListener('error', (e) => console.error('Audio error', e));
+  const initLofiAudio = () => {
+    if (typeof window !== 'undefined') {
+      lofiAudio.value = new Audio(settings.streamLink);
+      lofiAudio.value.loop = true;
+
+      lofiAudio.value.addEventListener('play', () => console.log('Lofi audio playing'));
+      lofiAudio.value.addEventListener('pause', () => console.log('Lofi audio paused'));
+      lofiAudio.value.addEventListener('error', (e) => console.error('Lofi audio error', e));
     }
+  };
+
+  onMounted(() => {
+    initLofiAudio();
     initAudio();
   });
 
   onUnmounted(() => {
     stopTimer();
     if (lofiAudio.value) {
-      lofiAudio.value.removeEventListener('play', () => console.log('Audio playing'));
-      lofiAudio.value.removeEventListener('pause', () => console.log('Audio paused'));
-      lofiAudio.value.removeEventListener('error', (e) => console.error('Audio error', e));
+      lofiAudio.value.pause();
+      lofiAudio.value.src = '';
+      lofiAudio.value.removeEventListener('play', () => console.log('Lofi audio playing'));
+      lofiAudio.value.removeEventListener('pause', () => console.log('Lofi audio paused'));
+      lofiAudio.value.removeEventListener('error', (e) => console.error('Lofi audio error', e));
     }
   });
 

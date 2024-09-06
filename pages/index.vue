@@ -5,7 +5,7 @@
       <div class='main-buttons'>
         <MainButton @click="toggleLofi" :active="lofiPlaying" class-name="lofi-button"
           content-class="main-button-content1" icon-name="lofi" :icon="LofiIcon" :icon-props="{ active: lofiPlaying }">
-          {{ lofiPlaying ? 'lofi off' : 'lofi on' }}
+          {{ lofiPlaying ? 'lofi on' : 'lofi off' }}
         </MainButton>
 
         <MainButton @click="skipTimer" content-class="main-button-content2" icon-name="skip" :icon="SkipIcon">
