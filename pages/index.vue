@@ -3,9 +3,9 @@
     <div class='device-content'>
       <div class="timer centered">{{ time }}</div>
       <div class='main-buttons'>
-        <MainButton @click="toggleLofi" :active="lofiPlaying" class-name="lofi-button"
-          content-class="main-button-content1" icon-name="lofi" :icon="LofiIcon" :icon-props="{ active: lofiPlaying }">
-          {{ lofiPlaying ? 'lofi on' : 'lofi off' }}
+        <MainButton @click="toggleLofi" :active="radioPlaying" class-name="lofi-button"
+          content-class="main-button-content1" icon-name="lofi" :icon="LofiIcon" :icon-props="{ active: radioPlaying }">
+          {{ radioPlaying ? 'radio on' : 'radio off' }}
         </MainButton>
 
         <MainButton @click="skipTimer" content-class="main-button-content2" icon-name="skip" :icon="SkipIcon">
@@ -26,7 +26,7 @@
           stat
         </MainButton>
       </div>
-      <audio ref="lofiAudio" :src="settings.streamLink" preload="none"></audio>
+      <audio ref="radioAudio" :src="settings.streamLink" preload="none"></audio>
     </div>
   </div>
 
@@ -50,8 +50,8 @@ import 'vue3-toastify/dist/index.css';
 
 const {
   pomodoroCount,
-  lofiPlaying,
-  lofiAudio,
+  radioPlaying,
+  radioAudio,
   toggleLofi,
   timerRunning,
   time,

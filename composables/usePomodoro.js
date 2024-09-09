@@ -18,8 +18,8 @@ export default function usePomodoro() {
 
   const timerRunning = ref(false);
   const isPomodoro = ref(true);
-  const lofiPlaying = ref(false);
-  const lofiAudio = ref(null);
+  const radioPlaying = ref(false);
+  const radioAudio = ref(null);
   const settingsOpenModal = ref(false);
   const statOpenModal = ref(false);
   const pomodoroCount = ref(0);
@@ -51,17 +51,17 @@ export default function usePomodoro() {
   };
 
   const fadeOutLofi = (duration) => {
-    if (!lofiAudio.value) return;
+    if (!radioAudio.value) return;
 
     const fadeOutInterval = 50;
-    const volumeStep = lofiAudio.value.volume / (duration * 1000 / fadeOutInterval);
+    const volumeStep = radioAudio.value.volume / (duration * 1000 / fadeOutInterval);
 
     const fade = setInterval(() => {
-      lofiAudio.value.volume = Math.max(0, lofiAudio.value.volume - volumeStep);
-      if (lofiAudio.value.volume <= 0) {
+      radioAudio.value.volume = Math.max(0, radioAudio.value.volume - volumeStep);
+      if (radioAudio.value.volume <= 0) {
         clearInterval(fade);
-        lofiAudio.value.pause();
-        lofiAudio.value.volume = 1; // Reset volume for next play
+        radioAudio.value.pause();
+        radioAudio.value.volume = 1; // Reset volume for next play
       }
     }, fadeOutInterval);
   };
@@ -91,7 +91,7 @@ export default function usePomodoro() {
       minutes = Math.floor(remainingSeconds / 60);
       seconds = remainingSeconds % 60;
 
-      if (isPomodoro.value && lofiPlaying.value && remainingSeconds === 30) {
+      if (isPomodoro.value && radioPlaying.value && remainingSeconds === 30) {
         fadeOutLofi(30);
       }
 
@@ -99,8 +99,8 @@ export default function usePomodoro() {
     }, 1000);
 
     timerRunning.value = true;
-    if (lofiPlaying.value && isPomodoro.value) {
-      lofiAudio.value.play();
+    if (radioPlaying.value && isPomodoro.value) {
+      radioAudio.value.play();
     }
   };
 
@@ -109,7 +109,7 @@ export default function usePomodoro() {
       clearInterval(interval);
       interval = null;
       timerRunning.value = false;
-      if (lofiPlaying.value && isPomodoro.value) lofiAudio.value.pause();
+      if (radioPlaying.value && isPomodoro.value) radioAudio.value.pause();
     }
   };
 
@@ -118,7 +118,7 @@ export default function usePomodoro() {
     interval = null;
     if (isPomodoro.value) {
       pomodoroCount.value++;
-      if (lofiPlaying.value) {
+      if (radioPlaying.value) {
         fadeOutLofi(5);
         setTimeout(playBellSound, 5000);
       } else {
@@ -158,11 +158,11 @@ export default function usePomodoro() {
 
   // Lofi functions
   const toggleLofi = () => {
-    lofiPlaying.value = !lofiPlaying.value;
-    if (lofiPlaying.value && isPomodoro.value && timerRunning.value) {
-      lofiAudio.value.play();
+    radioPlaying.value = !radioPlaying.value;
+    if (radioPlaying.value && isPomodoro.value && timerRunning.value) {
+      radioAudio.value.play();
     } else {
-      lofiAudio.value.pause();
+      radioAudio.value.pause();
     }
   };
 
@@ -190,8 +190,8 @@ export default function usePomodoro() {
           autoClose: 5000,
         });
         settings.streamLink = defaultStreamLink;
-        if (lofiAudio.value) {
-          lofiAudio.value.src = defaultStreamLink;
+        if (radioAudio.value) {
+          radioAudio.value.src = defaultStreamLink;
         }
       }
     }
@@ -200,30 +200,30 @@ export default function usePomodoro() {
   };
 
   // Lifecycle hooks
-  const initLofiAudio = () => {
+  const initRadioAudio = () => {
     if (typeof window !== 'undefined') {
-      lofiAudio.value = new Audio(settings.streamLink);
-      lofiAudio.value.loop = true;
+      radioAudio.value = new Audio(settings.streamLink);
+      radioAudio.value.loop = true;
 
-      lofiAudio.value.addEventListener('play', () => console.log('Lofi audio playing'));
-      lofiAudio.value.addEventListener('pause', () => console.log('Lofi audio paused'));
-      lofiAudio.value.addEventListener('error', (e) => console.error('Lofi audio error', e));
+      radioAudio.value.addEventListener('play', () => console.log('Lofi audio playing'));
+      radioAudio.value.addEventListener('pause', () => console.log('Lofi audio paused'));
+      radioAudio.value.addEventListener('error', (e) => console.error('Lofi audio error', e));
     }
   };
 
   onMounted(() => {
-    initLofiAudio();
+    initRadioAudio();
     initAudio();
   });
 
   onUnmounted(() => {
     stopTimer();
-    if (lofiAudio.value) {
-      lofiAudio.value.pause();
-      lofiAudio.value.src = '';
-      lofiAudio.value.removeEventListener('play', () => console.log('Lofi audio playing'));
-      lofiAudio.value.removeEventListener('pause', () => console.log('Lofi audio paused'));
-      lofiAudio.value.removeEventListener('error', (e) => console.error('Lofi audio error', e));
+    if (radioAudio.value) {
+      radioAudio.value.pause();
+      radioAudio.value.src = '';
+      radioAudio.value.removeEventListener('play', () => console.log('Lofi audio playing'));
+      radioAudio.value.removeEventListener('pause', () => console.log('Lofi audio paused'));
+      radioAudio.value.removeEventListener('error', (e) => console.error('Lofi audio error', e));
     }
   });
 
@@ -232,8 +232,8 @@ export default function usePomodoro() {
 
   return {
     pomodoroCount,
-    lofiPlaying,
-    lofiAudio,
+    radioPlaying,
+    radioAudio,
     toggleLofi,
     timerRunning,
     time,
