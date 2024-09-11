@@ -54,7 +54,7 @@ export default function usePomodoro() {
   const fadeOutLofi = (duration) => {
     if (!radioAudio.value) return;
 
-    const fadeOutInterval = 50;
+    const fadeOutInterval = 10;
     const volumeStep = radioAudio.value.volume / (duration * 1000 / fadeOutInterval);
 
     const fade = setInterval(() => {
@@ -62,7 +62,7 @@ export default function usePomodoro() {
       if (radioAudio.value.volume <= 0) {
         clearInterval(fade);
         radioAudio.value.pause();
-        radioAudio.value.volume = 1; // Reset volume for next play
+        radioAudio.value.volume = 1; 
       }
     }, fadeOutInterval);
   };
@@ -100,9 +100,7 @@ export default function usePomodoro() {
     }, 1000);
 
     timerRunning.value = true;
-    if (radioPlaying.value && isPomodoro.value) {
-      radioAudio.value.play();
-    }
+    updateRadioPlayback();
   };
 
   const stopTimer = () => {
@@ -110,7 +108,9 @@ export default function usePomodoro() {
       clearInterval(interval);
       interval = null;
       timerRunning.value = false;
-      if (radioPlaying.value && isPomodoro.value) radioAudio.value.pause();
+      if (radioPlaying.value && isPomodoro.value) {
+        radioAudio.value.pause();
+      }
     }
   };
 
@@ -134,6 +134,16 @@ export default function usePomodoro() {
       startTimer();
     } else {
       timerRunning.value = false;
+    }
+    updateRadioPlayback();
+  };
+
+  const handleVisibilityChange = () => {
+    if (!document.hidden && radioPlaying.value && isPomodoro.value && timerRunning.value) {
+      radioAudio.value.play().catch(error => {
+        console.error('Failed to play audio on visibility change:', error);
+        streamError.value = true;
+      });
     }
   };
 
@@ -160,19 +170,7 @@ export default function usePomodoro() {
   // Lofi functions
   const toggleLofi = () => {
     radioPlaying.value = !radioPlaying.value;
-    if (radioPlaying.value) {
-      if (!radioAudio.value.src) {
-        radioAudio.value.src = settings.streamLink;
-      }
-      radioAudio.value.play().catch(error => {
-        console.error('Failed to play audio:', error);
-        streamError.value = true;
-      });
-      resumeAudioCheck();
-    } else {
-      radioAudio.value.pause();
-      pauseAudioCheck();
-    }
+    updateRadioPlayback();
   };
 
   // Settings functions
@@ -208,6 +206,20 @@ export default function usePomodoro() {
     return true;
   };
 
+  const updateRadioPlayback = () => {
+    if (radioPlaying.value && isPomodoro.value && timerRunning.value) {
+      if (!radioAudio.value.src) {
+        radioAudio.value.src = settings.streamLink;
+      }
+      radioAudio.value.play().catch(error => {
+        console.error('Failed to play audio:', error);
+        streamError.value = true;
+      });
+    } else {
+      radioAudio.value.pause();
+    }
+  };
+
   // Lifecycle hooks
   const initRadioAudio = () => {
     if (typeof window !== 'undefined') {
@@ -238,7 +250,7 @@ export default function usePomodoro() {
   };
 
   const { pause: pauseAudioCheck, resume: resumeAudioCheck } = useIntervalFn(() => {
-    if (radioPlaying.value && radioAudio.value && radioAudio.value.paused) {
+    if (radioPlaying.value && radioAudio.value && radioAudio.value.paused && isPomodoro.value && timerRunning.value) {
       console.log('Attempting to restart paused audio');
       radioAudio.value.play().catch(error => {
         console.error('Failed to restart audio:', error);
@@ -251,6 +263,7 @@ export default function usePomodoro() {
     initRadioAudio();
     initAudio();
     window.addEventListener('online', restartRadioStream);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
   });
 
   onUnmounted(() => {
@@ -261,10 +274,11 @@ export default function usePomodoro() {
     }
     pauseAudioCheck();
     window.removeEventListener('online', restartRadioStream);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
   });
 
   // Watchers
-  watch(settings, resetTimer);
+  watch([isPomodoro, timerRunning, radioPlaying], updateRadioPlayback);
 
   return {
     pomodoroCount,
@@ -287,5 +301,6 @@ export default function usePomodoro() {
     defaultStreamLink,
     notificationAudio,
     restartRadioStream,
+    updateRadioPlayback,
   };
 }
