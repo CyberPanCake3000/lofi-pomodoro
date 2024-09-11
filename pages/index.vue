@@ -66,6 +66,7 @@ const {
   closeStat,
   statOpenModal,
   defaultStreamLink,
+  restartRadioStream,
 } = usePomodoro();
 </script>
 

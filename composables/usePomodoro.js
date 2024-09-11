@@ -1,6 +1,7 @@
 import { ref, reactive, watch, onMounted, onUnmounted } from 'vue';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import { useIntervalFn } from '@vueuse/core';
 
 export default function usePomodoro() {
   // State
@@ -159,10 +160,18 @@ export default function usePomodoro() {
   // Lofi functions
   const toggleLofi = () => {
     radioPlaying.value = !radioPlaying.value;
-    if (radioPlaying.value && isPomodoro.value && timerRunning.value) {
-      radioAudio.value.play();
+    if (radioPlaying.value) {
+      if (!radioAudio.value.src) {
+        radioAudio.value.src = settings.streamLink;
+      }
+      radioAudio.value.play().catch(error => {
+        console.error('Failed to play audio:', error);
+        streamError.value = true;
+      });
+      resumeAudioCheck();
     } else {
       radioAudio.value.pause();
+      pauseAudioCheck();
     }
   };
 
@@ -202,18 +211,46 @@ export default function usePomodoro() {
   // Lifecycle hooks
   const initRadioAudio = () => {
     if (typeof window !== 'undefined') {
-      radioAudio.value = new Audio(settings.streamLink);
+      radioAudio.value = new Audio();
+      radioAudio.value.preload = 'none';
       radioAudio.value.loop = true;
 
-      radioAudio.value.addEventListener('play', () => console.log('Lofi audio playing'));
-      radioAudio.value.addEventListener('pause', () => console.log('Lofi audio paused'));
-      radioAudio.value.addEventListener('error', (e) => console.error('Lofi audio error', e));
+      radioAudio.value.addEventListener('play', () => console.log('Radio audio playing'));
+      radioAudio.value.addEventListener('pause', () => console.log('Radio audio paused'));
+      radioAudio.value.addEventListener('error', (e) => {
+        console.error('Radio audio error', e);
+        streamError.value = true;
+        restartRadioStream();
+      });
     }
   };
+
+  const restartRadioStream = () => {
+    if (radioAudio.value) {
+      radioAudio.value.src = settings.streamLink;
+      if (radioPlaying.value) {
+        radioAudio.value.play().catch(error => {
+          console.error('Failed to restart radio stream:', error);
+          streamError.value = true;
+        });
+      }
+    }
+  };
+
+  const { pause: pauseAudioCheck, resume: resumeAudioCheck } = useIntervalFn(() => {
+    if (radioPlaying.value && radioAudio.value && radioAudio.value.paused) {
+      console.log('Attempting to restart paused audio');
+      radioAudio.value.play().catch(error => {
+        console.error('Failed to restart audio:', error);
+        streamError.value = true;
+      });
+    }
+  }, 5000);
 
   onMounted(() => {
     initRadioAudio();
     initAudio();
+    window.addEventListener('online', restartRadioStream);
   });
 
   onUnmounted(() => {
@@ -221,10 +258,9 @@ export default function usePomodoro() {
     if (radioAudio.value) {
       radioAudio.value.pause();
       radioAudio.value.src = '';
-      radioAudio.value.removeEventListener('play', () => console.log('Lofi audio playing'));
-      radioAudio.value.removeEventListener('pause', () => console.log('Lofi audio paused'));
-      radioAudio.value.removeEventListener('error', (e) => console.error('Lofi audio error', e));
     }
+    pauseAudioCheck();
+    window.removeEventListener('online', restartRadioStream);
   });
 
   // Watchers
@@ -250,5 +286,6 @@ export default function usePomodoro() {
     streamError,
     defaultStreamLink,
     notificationAudio,
+    restartRadioStream,
   };
 }
