@@ -62,7 +62,7 @@ export default function usePomodoro() {
       if (radioAudio.value.volume <= 0) {
         clearInterval(fade);
         radioAudio.value.pause();
-        radioAudio.value.volume = 1; 
+        radioAudio.value.volume = 1;
       }
     }, fadeOutInterval);
   };
@@ -121,10 +121,8 @@ export default function usePomodoro() {
       pomodoroCount.value++;
       if (radioPlaying.value) {
         fadeOutLofi(5);
-        setTimeout(playBellSound, 5000);
-      } else {
-        playBellSound();
       }
+      playBellSound();
     } else {
       playBellSound();
     }
