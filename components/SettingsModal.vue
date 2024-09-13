@@ -67,6 +67,23 @@
                   </div>
                 </div>
 
+                <div class="volume-controls">
+                  <h5>Volume</h5>
+
+                  <div class='d-flex'>
+
+                  <div class="volume-control me-2">
+                    <label for="radio-volume" class="form-label">Radio</label>
+                    <input type="range" class="form-range" id="radio-volume" min="0.2" max="1" step="0.1" v-model.number="localSettings.radioVolume">
+                  </div>
+                  <div class="volume-control ms-2">
+                    <label for="bell-volume" class="form-label">Bell</label>
+                    <input type="range" class="form-range" id="bell-volume" min="0.2" max="1" step="0.1" v-model.number="localSettings.bellVolume">
+                  </div>
+
+                  </div>
+                </div>
+
                 <div class='mb-3'>
                   <label class="form-label d-block mb-1 fs-6" for="streamLink">Stream Link</label>
                   <input class="form-control" id="streamLink" v-model="localSettings.streamLink" type="url" required>

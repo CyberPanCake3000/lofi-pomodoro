@@ -26,6 +26,8 @@ export default function usePomodoro() {
   const pomodoroCount = ref(0);
   const streamError = ref(false);
   const notificationAudio = ref(null);
+  const radioVolume = ref(1);
+  const bellVolume = ref(1);
 
   let interval = null;
 
@@ -48,6 +50,7 @@ export default function usePomodoro() {
     if (typeof window !== 'undefined') {
       const bellDingModule = await import('@/assets/sounds/bell-ding.mp3');
       notificationAudio.value = new Audio(bellDingModule.default);
+      notificationAudio.value.volume = bellVolume.value;
     }
   };
 
@@ -62,7 +65,7 @@ export default function usePomodoro() {
       if (radioAudio.value.volume <= 0) {
         clearInterval(fade);
         radioAudio.value.pause();
-        radioAudio.value.volume = 1;
+        radioAudio.value.volume = radioVolume.value;
       }
     }, fadeOutInterval);
   };
@@ -166,9 +169,23 @@ export default function usePomodoro() {
   };
 
   // Lofi functions
-  const toggleLofi = () => {
+  const toggleRadio = () => {
     radioPlaying.value = !radioPlaying.value;
     updateRadioPlayback();
+  };
+
+  const setRadioVolume = (volume) => {
+    radioVolume.value = volume;
+    if (radioAudio.value) {
+      radioAudio.value.volume = volume;
+    }
+  };
+
+  const setBellVolume = (volume) => {
+    bellVolume.value = volume;
+    if (notificationAudio.value) {
+      notificationAudio.value.volume = volume;
+    }
   };
 
   // Settings functions
@@ -185,6 +202,8 @@ export default function usePomodoro() {
   const updateSettings = async (newSettings) => {
     const oldStreamLink = settings.streamLink;
     Object.assign(settings, newSettings);
+    setRadioVolume(newSettings.radioVolume);
+    setBellVolume(newSettings.bellVolume);
     resetTimer();
 
     if (newSettings.streamLink !== oldStreamLink) {
@@ -213,6 +232,8 @@ export default function usePomodoro() {
         console.error('Failed to play audio:', error);
         streamError.value = true;
       });
+      radioAudio.value.volume = radioVolume.value;
+      console.log('changed radio audio volume', radioAudio.value.volume);
     } else {
       radioAudio.value.pause();
     }
@@ -224,6 +245,7 @@ export default function usePomodoro() {
       radioAudio.value = new Audio();
       radioAudio.value.preload = 'none';
       radioAudio.value.loop = true;
+      radioAudio.value.volume = radioVolume.value;
 
       radioAudio.value.addEventListener('play', () => console.log('Radio audio playing'));
       radioAudio.value.addEventListener('pause', () => console.log('Radio audio paused'));
@@ -239,6 +261,7 @@ export default function usePomodoro() {
     if (radioAudio.value) {
       radioAudio.value.src = settings.streamLink;
       if (radioPlaying.value) {
+        radioAudio.value.volume = radioVolume.value;
         radioAudio.value.play().catch(error => {
           console.error('Failed to restart radio stream:', error);
           streamError.value = true;
@@ -249,11 +272,11 @@ export default function usePomodoro() {
 
   const { pause: pauseAudioCheck, resume: resumeAudioCheck } = useIntervalFn(() => {
     if (radioPlaying.value && radioAudio.value && radioAudio.value.paused && isPomodoro.value && timerRunning.value) {
-      console.log('Attempting to restart paused audio');
       radioAudio.value.play().catch(error => {
         console.error('Failed to restart audio:', error);
         streamError.value = true;
       });
+      radioAudio.value.volume = radioVolume.value;
     }
   }, 5000);
 
@@ -282,7 +305,7 @@ export default function usePomodoro() {
     pomodoroCount,
     radioPlaying,
     radioAudio,
-    toggleLofi,
+    toggleRadio,
     timerRunning,
     time,
     toggleTimer,
@@ -300,5 +323,9 @@ export default function usePomodoro() {
     notificationAudio,
     restartRadioStream,
     updateRadioPlayback,
+    radioVolume,
+    bellVolume,
+    setRadioVolume,
+    setBellVolume,
   };
 }

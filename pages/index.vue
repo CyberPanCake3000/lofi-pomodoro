@@ -3,7 +3,7 @@
     <div class='device-content'>
       <div class="timer centered">{{ time }}</div>
       <div class='main-buttons'>
-        <MainButton @click="toggleLofi" :active="radioPlaying" class-name="lofi-button"
+        <MainButton @click="toggleRadio" :active="radioPlaying" class-name="lofi-button"
           content-class="main-button-content1" icon-name="lofi" :icon="LofiIcon" :icon-props="{ active: radioPlaying }">
           {{ radioPlaying ? 'radio on' : 'radio off' }}
         </MainButton>
@@ -52,7 +52,7 @@ const {
   pomodoroCount,
   radioPlaying,
   radioAudio,
-  toggleLofi,
+  toggleRadio,
   timerRunning,
   time,
   toggleTimer,
@@ -68,6 +68,10 @@ const {
   defaultStreamLink,
   restartRadioStream,
   updateRadioPlayback,
+  radioVolume,
+  bellVolume,
+  setRadioVolume,
+  setBellVolume,
 } = usePomodoro();
 </script>
 
