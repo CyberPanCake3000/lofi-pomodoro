@@ -3,10 +3,22 @@ import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import { useIntervalFn } from '@vueuse/core';
 
+import bellDingSound from '@/assets/sounds/bell-ding.mp3';
+
 export default function usePomodoro() {
-  // State
-  const time = ref('25:00');
-  const defaultStreamLink = 'https://ec3.yesstreaming.net:3755/stream';
+  const DEFAULT_STREAM_LINK = 'https://ec3.yesstreaming.net:3755/stream';
+
+  const state = reactive({
+    time: '25:00',
+    timerRunning: false,
+    isPomodoro: true,
+    radioPlaying: false,
+    pomodoroCount: 0,
+    streamError: false,
+    settingsOpenModal: false,
+    statOpenModal: false,
+  });
+
   const settings = reactive({
     pomodoroDuration: 25,
     shortBreakDuration: 5,
@@ -14,43 +26,33 @@ export default function usePomodoro() {
     longBreakInterval: 4,
     autoStartPomodoro: false,
     autoStartBreak: false,
-    streamLink: defaultStreamLink,
+    streamLink: DEFAULT_STREAM_LINK,
+    radioVolume: 1,
+    bellVolume: 1,
   });
 
-  const timerRunning = ref(false);
-  const isPomodoro = ref(true);
-  const radioPlaying = ref(false);
   const radioAudio = ref(null);
-  const settingsOpenModal = ref(false);
-  const statOpenModal = ref(false);
-  const pomodoroCount = ref(0);
-  const streamError = ref(false);
   const notificationAudio = ref(null);
-  const radioVolume = ref(1);
-  const bellVolume = ref(1);
 
   let interval = null;
 
-  // Helper functions
   const formatTime = (minutes) => `${String(minutes).padStart(2, '0')}:00`;
 
   const getTimerDuration = () => {
-    if (isPomodoro.value) return settings.pomodoroDuration;
-    return (pomodoroCount.value % settings.longBreakInterval === 0)
+    if (state.isPomodoro) return settings.pomodoroDuration;
+    return (state.pomodoroCount % settings.longBreakInterval === 0)
       ? settings.longBreakDuration
       : settings.shortBreakDuration;
   };
 
   const resetTimer = () => {
-    time.value = formatTime(getTimerDuration());
+    state.time = formatTime(getTimerDuration());
   };
 
-  // Audio functions
-  const initAudio = async () => {
+  const initAudio = () => {
     if (typeof window !== 'undefined') {
-      const bellDingModule = await import('@/assets/sounds/bell-ding.mp3');
-      notificationAudio.value = new Audio(bellDingModule.default);
-      notificationAudio.value.volume = bellVolume.value;
+      notificationAudio.value = new Audio(bellDingSound);
+      notificationAudio.value.volume = settings.bellVolume;
     }
   };
 
@@ -65,21 +67,20 @@ export default function usePomodoro() {
       if (radioAudio.value.volume <= 0) {
         clearInterval(fade);
         radioAudio.value.pause();
-        radioAudio.value.volume = radioVolume.value;
+        radioAudio.value.volume = settings.radioVolume;
       }
     }, fadeOutInterval);
   };
 
   const playBellSound = () => {
     if (notificationAudio.value) {
-      notificationAudio.value.play();
+      notificationAudio.value.play().catch(error => console.error('Failed to play notification sound:', error));
     }
   };
 
-  // Timer functions
   const startTimer = () => {
     if (interval) return;
-    let [minutes, seconds] = time.value.split(':').map(Number);
+    let [minutes, seconds] = state.time.split(':').map(Number);
     const totalSeconds = minutes * 60 + seconds;
     const startTime = Date.now();
 
@@ -95,14 +96,14 @@ export default function usePomodoro() {
       minutes = Math.floor(remainingSeconds / 60);
       seconds = remainingSeconds % 60;
 
-      if (isPomodoro.value && radioPlaying.value && remainingSeconds === 30) {
+      if (state.isPomodoro && state.radioPlaying && remainingSeconds === 30) {
         fadeOutLofi(30);
       }
 
-      time.value = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      state.time = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }, 1000);
 
-    timerRunning.value = true;
+    state.timerRunning = true;
     updateRadioPlayback();
   };
 
@@ -110,8 +111,8 @@ export default function usePomodoro() {
     if (interval) {
       clearInterval(interval);
       interval = null;
-      timerRunning.value = false;
-      if (radioPlaying.value && isPomodoro.value) {
+      state.timerRunning = false;
+      if (state.radioPlaying && state.isPomodoro) {
         radioAudio.value.pause();
       }
     }
@@ -120,36 +121,27 @@ export default function usePomodoro() {
   const handleTimerEnd = () => {
     clearInterval(interval);
     interval = null;
-    if (isPomodoro.value) {
-      pomodoroCount.value++;
-      if (radioPlaying.value) {
+    if (state.isPomodoro) {
+      state.pomodoroCount++;
+      if (state.radioPlaying) {
         fadeOutLofi(5);
       }
       playBellSound();
     } else {
       playBellSound();
     }
-    isPomodoro.value = !isPomodoro.value;
+    state.isPomodoro = !state.isPomodoro;
     resetTimer();
-    if ((isPomodoro.value && settings.autoStartPomodoro) || (!isPomodoro.value && settings.autoStartBreak)) {
+    if ((state.isPomodoro && settings.autoStartPomodoro) || (!state.isPomodoro && settings.autoStartBreak)) {
       startTimer();
     } else {
-      timerRunning.value = false;
+      state.timerRunning = false;
     }
     updateRadioPlayback();
   };
 
-  const handleVisibilityChange = () => {
-    if (!document.hidden && radioPlaying.value && isPomodoro.value && timerRunning.value) {
-      radioAudio.value.play().catch(error => {
-        console.error('Failed to play audio on visibility change:', error);
-        streamError.value = true;
-      });
-    }
-  };
-
   const toggleTimer = () => {
-    if (timerRunning.value) {
+    if (state.timerRunning) {
       stopTimer();
     } else {
       startTimer();
@@ -158,37 +150,35 @@ export default function usePomodoro() {
 
   const skipTimer = () => {
     stopTimer();
-    if (isPomodoro.value) {
-      pomodoroCount.value++;
+    if (state.isPomodoro) {
+      state.pomodoroCount++;
     }
-    isPomodoro.value = !isPomodoro.value;
+    state.isPomodoro = !state.isPomodoro;
     resetTimer();
-    if ((isPomodoro.value && settings.autoStartPomodoro) || (!isPomodoro.value && settings.autoStartBreak)) {
+    if ((state.isPomodoro && settings.autoStartPomodoro) || (!state.isPomodoro && settings.autoStartBreak)) {
       startTimer();
     }
   };
 
-  // Lofi functions
   const toggleRadio = () => {
-    radioPlaying.value = !radioPlaying.value;
+    state.radioPlaying = !state.radioPlaying;
     updateRadioPlayback();
   };
 
   const setRadioVolume = (volume) => {
-    radioVolume.value = volume;
+    settings.radioVolume = volume;
     if (radioAudio.value) {
       radioAudio.value.volume = volume;
     }
   };
 
   const setBellVolume = (volume) => {
-    bellVolume.value = volume;
+    settings.bellVolume = volume;
     if (notificationAudio.value) {
       notificationAudio.value.volume = volume;
     }
   };
 
-  // Settings functions
   const checkStreamValidity = async (url) => {
     try {
       const response = await fetch(url, { method: 'HEAD' });
@@ -213,9 +203,9 @@ export default function usePomodoro() {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 5000,
         });
-        settings.streamLink = defaultStreamLink;
+        settings.streamLink = DEFAULT_STREAM_LINK;
         if (radioAudio.value) {
-          radioAudio.value.src = defaultStreamLink;
+          radioAudio.value.src = DEFAULT_STREAM_LINK;
         }
       }
     }
@@ -224,34 +214,32 @@ export default function usePomodoro() {
   };
 
   const updateRadioPlayback = () => {
-    if (radioPlaying.value && isPomodoro.value && timerRunning.value) {
+    if (state.radioPlaying && state.isPomodoro && state.timerRunning) {
       if (!radioAudio.value.src) {
         radioAudio.value.src = settings.streamLink;
       }
       radioAudio.value.play().catch(error => {
         console.error('Failed to play audio:', error);
-        streamError.value = true;
+        state.streamError = true;
       });
-      radioAudio.value.volume = radioVolume.value;
-      console.log('changed radio audio volume', radioAudio.value.volume);
+      radioAudio.value.volume = settings.radioVolume;
     } else {
       radioAudio.value.pause();
     }
   };
 
-  // Lifecycle hooks
   const initRadioAudio = () => {
     if (typeof window !== 'undefined') {
       radioAudio.value = new Audio();
       radioAudio.value.preload = 'none';
       radioAudio.value.loop = true;
-      radioAudio.value.volume = radioVolume.value;
+      radioAudio.value.volume = settings.radioVolume;
 
       radioAudio.value.addEventListener('play', () => console.log('Radio audio playing'));
       radioAudio.value.addEventListener('pause', () => console.log('Radio audio paused'));
       radioAudio.value.addEventListener('error', (e) => {
         console.error('Radio audio error', e);
-        streamError.value = true;
+        state.streamError = true;
         restartRadioStream();
       });
     }
@@ -260,23 +248,32 @@ export default function usePomodoro() {
   const restartRadioStream = () => {
     if (radioAudio.value) {
       radioAudio.value.src = settings.streamLink;
-      if (radioPlaying.value) {
-        radioAudio.value.volume = radioVolume.value;
+      if (state.radioPlaying) {
+        radioAudio.value.volume = settings.radioVolume;
         radioAudio.value.play().catch(error => {
           console.error('Failed to restart radio stream:', error);
-          streamError.value = true;
+          state.streamError = true;
         });
       }
     }
   };
 
+  const handleVisibilityChange = () => {
+    if (!document.hidden && state.radioPlaying && state.isPomodoro && state.timerRunning) {
+      radioAudio.value.play().catch(error => {
+        console.error('Failed to play audio on visibility change:', error);
+        state.streamError = true;
+      });
+    }
+  };
+
   const { pause: pauseAudioCheck, resume: resumeAudioCheck } = useIntervalFn(() => {
-    if (radioPlaying.value && radioAudio.value && radioAudio.value.paused && isPomodoro.value && timerRunning.value) {
+    if (state.radioPlaying && radioAudio.value && radioAudio.value.paused && state.isPomodoro && state.timerRunning) {
       radioAudio.value.play().catch(error => {
         console.error('Failed to restart audio:', error);
-        streamError.value = true;
+        state.streamError = true;
       });
-      radioAudio.value.volume = radioVolume.value;
+      radioAudio.value.volume = settings.radioVolume;
     }
   }, 5000);
 
@@ -298,33 +295,22 @@ export default function usePomodoro() {
     document.removeEventListener('visibilitychange', handleVisibilityChange);
   });
 
-  // Watchers
-  watch([isPomodoro, timerRunning, radioPlaying], updateRadioPlayback);
+  watch(() => [state.isPomodoro, state.timerRunning, state.radioPlaying], updateRadioPlayback);
 
   return {
-    pomodoroCount,
-    radioPlaying,
-    radioAudio,
+    state,
+    settings,
     toggleRadio,
-    timerRunning,
-    time,
     toggleTimer,
     skipTimer,
-    settings,
-    settingsOpenModal,
-    openSettings: () => settingsOpenModal.value = true,
-    closeSettings: () => settingsOpenModal.value = false,
+    openSettings: () => state.settingsOpenModal = true,
+    closeSettings: () => state.settingsOpenModal = false,
     updateSettings,
-    showStat: () => statOpenModal.value = true,
-    closeStat: () => statOpenModal.value = false,
-    statOpenModal,
-    streamError,
-    defaultStreamLink,
-    notificationAudio,
+    showStat: () => state.statOpenModal = true,
+    closeStat: () => state.statOpenModal = false,
+    DEFAULT_STREAM_LINK,
     restartRadioStream,
     updateRadioPlayback,
-    radioVolume,
-    bellVolume,
     setRadioVolume,
     setBellVolume,
   };
